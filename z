@@ -1,0 +1,58 @@
+import os
+import random
+import json
+
+if not os.path.isfile('config.json'):
+    t=list(range(2920//8))
+    random.shuffle(t)
+    config={'num':0,'seq':t,'err':[]}
+    with open('config.json','w') as f:
+        json.dump(config,f)
+if not os.path.isfile('problem.json'):
+    with open('problem.txt','r',encoding='gb2312') as f:
+        problem_=f.read().splitlines()
+    problem={}
+    for i in range(0,2920//8):
+        problem[i]=list(map(lambda x:x[3:],problem_[i*8+1:i*8+6]))
+    with open('problem.json','w') as f:
+        json.dump(problem,f)
+valid=['A','a','1','B','b','2','C','c','3','D','d','4','Q','q','']
+alphabet=['A','B','C','D']
+with open('config.json','r') as f:
+    config=json.load(f)
+    num=config['num']
+    seq=config['seq']
+    err=config['err']
+with open('problem.json','r') as f:
+    problem=json.load(f)
+while True:
+    if num>len(seq)-1:
+        print('finish')
+        break
+    tn=seq[num]
+    tt=problem[str(tn)]
+    ts=list(range(1,5))
+    random.shuffle(ts)
+    tr=ts.index(1)
+    print(str(num+1)+'：'+tt[0])
+    for i in range(4):
+        print(alphabet[i]+'.'+tt[ts[i]])
+    ti=input('答：')
+    while ti not in valid:
+        ti=input('答：')
+    if ti in ['Q','q','']:
+        break
+    elif valid.index(ti)//3==tr:
+        print('\n正确\n')
+        num+=1
+        config['num']=num
+        with open('config.json','w') as f:
+            json.dump(config,f)
+    else:
+        print('\n错误\n正确答案：'+tt[1]+'\n')
+        num+=1
+        config['num']=num
+        err.append(tn)
+        config['err']=err
+        with open('config.json','w') as f:
+            json.dump(config,f)
